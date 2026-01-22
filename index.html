@@ -1,1 +1,751 @@
-Hello world!
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>TrustLayer — TrustScore Scanner (MVP)</title>
+    <style>
+      :root {
+        --bg: #0b0f19;
+        --panel: #121a2a;
+        --panel2: #0f1626;
+        --text: #e8eefc;
+        --muted: rgba(232, 238, 252, 0.75);
+        --muted2: rgba(232, 238, 252, 0.55);
+        --border: rgba(232, 238, 252, 0.12);
+        --shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
+        --radius: 16px;
+        --radius2: 12px;
+      }
+
+      * { box-sizing: border-box; }
+      html, body { height: 100%; }
+      body {
+        margin: 0;
+        font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+        background: radial-gradient(1200px 600px at 20% 10%, rgba(93, 140, 255, 0.20), transparent 55%),
+                    radial-gradient(900px 500px at 85% 0%, rgba(0, 255, 204, 0.12), transparent 60%),
+                    radial-gradient(1000px 700px at 55% 100%, rgba(255, 171, 64, 0.12), transparent 60%),
+                    var(--bg);
+        color: var(--text);
+      }
+
+      a { color: inherit; }
+      .wrap {
+        max-width: 1100px;
+        margin: 0 auto;
+        padding: 28px 18px 90px;
+      }
+
+      header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 16px;
+        margin-bottom: 18px;
+      }
+      .brand {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .brand h1 {
+        margin: 0;
+        font-size: 20px;
+        letter-spacing: 0.2px;
+      }
+      .brand p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.35;
+      }
+
+      .pill {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255, 255, 255, 0.04);
+        font-size: 12px;
+        color: var(--muted);
+        user-select: none;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 99px;
+        background: rgba(232, 238, 252, 0.35);
+      }
+      .dot.ok { background: rgba(0, 255, 204, 0.75); }
+      .dot.warn { background: rgba(255, 171, 64, 0.85); }
+      .dot.bad { background: rgba(255, 71, 87, 0.85); }
+
+      .grid {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 14px;
+        align-items: start;
+      }
+
+      .card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03));
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+      .card .hd {
+        padding: 14px 14px 10px;
+        border-bottom: 1px solid var(--border);
+        background: rgba(0, 0, 0, 0.08);
+      }
+      .card .hd h2 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 650;
+        letter-spacing: 0.2px;
+      }
+      .card .hd p {
+        margin: 6px 0 0;
+        font-size: 12px;
+        color: var(--muted2);
+        line-height: 1.35;
+      }
+      .card .bd { padding: 14px; }
+
+      label {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 6px;
+      }
+
+      input[type="text"], input[type="password"], textarea, select {
+        width: 100%;
+        background: rgba(0,0,0,0.25);
+        color: var(--text);
+        border: 1px solid rgba(232, 238, 252, 0.14);
+        border-radius: 12px;
+        padding: 10px 10px;
+        outline: none;
+        font-size: 13px;
+      }
+      textarea { min-height: 140px; resize: vertical; line-height: 1.35; }
+      input::placeholder, textarea::placeholder { color: rgba(232,238,252,0.45); }
+
+      .row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .row3 {
+        display: grid;
+        grid-template-columns: 1fr 1fr 1fr;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+
+      .checks {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        margin: 8px 0 0;
+      }
+      .check {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: 999px;
+        background: rgba(255,255,255,0.04);
+        font-size: 12px;
+        user-select: none;
+      }
+      .check input { transform: translateY(1px); }
+
+      .btnbar {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      button {
+        appearance: none;
+        border: 1px solid rgba(232, 238, 252, 0.18);
+        background: rgba(255, 255, 255, 0.06);
+        color: var(--text);
+        padding: 10px 12px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-size: 13px;
+        font-weight: 600;
+      }
+      button:hover { background: rgba(255, 255, 255, 0.09); }
+      button.primary {
+        border-color: rgba(93, 140, 255, 0.55);
+        background: rgba(93, 140, 255, 0.16);
+      }
+      button.primary:hover { background: rgba(93, 140, 255, 0.22); }
+      button.danger {
+        border-color: rgba(255, 71, 87, 0.55);
+        background: rgba(255, 71, 87, 0.10);
+      }
+
+      .tiny {
+        font-size: 12px;
+        color: var(--muted2);
+        line-height: 1.4;
+        margin: 10px 0 0;
+      }
+
+      .resultTop {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .scoreBox {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .scoreCircle {
+        width: 64px;
+        height: 64px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(232,238,252,0.18);
+        background: rgba(0,0,0,0.18);
+      }
+      .scoreNum {
+        font-size: 18px;
+        font-weight: 800;
+      }
+      .scoreMeta {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .scoreMeta .lbl {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .scoreMeta .sub {
+        font-size: 12px;
+        color: var(--muted2);
+      }
+
+      .badge {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        padding: 8px 10px;
+        border-radius: 999px;
+        border: 1px solid rgba(232,238,252,0.16);
+        background: rgba(255,255,255,0.04);
+        font-size: 12px;
+      }
+      .badge strong { font-weight: 800; }
+
+      .bar {
+        width: 100%;
+        height: 10px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(232,238,252,0.10);
+        overflow: hidden;
+      }
+      .bar > div {
+        height: 100%;
+        width: 0%;
+        background: rgba(93, 140, 255, 0.75);
+        transition: width 220ms ease;
+      }
+
+      .kv {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 8px;
+        align-items: center;
+        margin-top: 10px;
+      }
+      .kv .k {
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .kv .v {
+        font-size: 12px;
+        color: var(--text);
+        font-weight: 650;
+      }
+
+      .divider {
+        height: 1px;
+        background: var(--border);
+        margin: 14px 0;
+      }
+
+      .jsonBox {
+        background: rgba(0,0,0,0.25);
+        border: 1px solid rgba(232,238,252,0.12);
+        border-radius: 12px;
+        padding: 10px;
+        overflow: auto;
+        max-height: 280px;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+        font-size: 12px;
+        line-height: 1.35;
+        color: rgba(232,238,252,0.9);
+        white-space: pre;
+      }
+
+      .hint {
+        font-size: 12px;
+        color: var(--muted2);
+        margin: 6px 0 0;
+      }
+
+      .toast {
+        position: fixed;
+        left: 50%;
+        bottom: 18px;
+        transform: translateX(-50%);
+        background: rgba(0,0,0,0.65);
+        border: 1px solid rgba(232,238,252,0.14);
+        padding: 10px 12px;
+        border-radius: 12px;
+        color: var(--text);
+        font-size: 12px;
+        box-shadow: var(--shadow);
+        opacity: 0;
+        pointer-events: none;
+        transition: opacity 180ms ease;
+      }
+      .toast.show { opacity: 1; }
+
+      @media (max-width: 920px) {
+        .grid { grid-template-columns: 1fr; }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="brand">
+          <h1>TrustLayer — TrustScore Scanner (MVP)</h1>
+          <p>
+            Paste a question + an LLM answer (any provider). This page calls your TrustLayer API (<code>/score</code>) and renders a TrustScore + check breakdown.
+            <br />Built as a simple <code>index.html</code> starter you can push to GitHub / run in VSCode.
+          </p>
+        </div>
+
+        <div class="pill" title="Connection status to TrustLayer API">
+          <span id="statusDot" class="dot"></span>
+          <span id="statusText">Not connected</span>
+        </div>
+      </header>
+
+      <div class="grid">
+        <!-- LEFT: Input -->
+        <section class="card">
+          <div class="hd">
+            <h2>Input</h2>
+            <p>Configure your API, pick provider, paste question + answer, select checks, then run.</p>
+          </div>
+          <div class="bd">
+            <div class="row">
+              <div>
+                <label for="apiBase">TrustLayer API Base URL</label>
+                <input id="apiBase" type="text" placeholder="https://api.trustlayer.dev" value="http://localhost:8000" />
+                <div class="hint">Use <code>http://localhost:8000</code> for local FastAPI dev.</div>
+              </div>
+              <div>
+                <label for="apiKey">API Key (x-api-key)</label>
+                <input id="apiKey" type="password" placeholder="paste key (optional for local dev)" />
+                <div class="hint">Stored only in memory (not persisted).</div>
+              </div>
+            </div>
+
+            <div class="row3">
+              <div>
+                <label for="provider">Provider</label>
+                <select id="provider">
+                  <option value="chatgpt">ChatGPT (OpenAI)</option>
+                  <option value="claude">Claude (Anthropic)</option>
+                  <option value="gemini">Gemini (Google)</option>
+                  <option value="perplexity">Perplexity</option>
+                  <option value="other">Other / Custom</option>
+                </select>
+              </div>
+              <div>
+                <label for="modelHint">Model Hint (optional)</label>
+                <input id="modelHint" type="text" placeholder='e.g., "GPT-4.1", "Claude 3.5 Sonnet"' />
+              </div>
+              <div>
+                <label for="source">Source</label>
+                <select id="source">
+                  <option value="web-ui">web-ui</option>
+                  <option value="extension">extension</option>
+                  <option value="sdk">sdk</option>
+                  <option value="api">api</option>
+                </select>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 10px;">
+              <label>Checks to run</label>
+              <div class="checks">
+                <label class="check"><input type="checkbox" id="ckTox" checked /> toxicity</label>
+                <label class="check"><input type="checkbox" id="ckHall" checked /> hallucination</label>
+                <label class="check"><input type="checkbox" id="ckBias" checked /> bias</label>
+                <label class="check"><input type="checkbox" id="ckPII" /> pii</label>
+                <label class="check"><input type="checkbox" id="ckInj" /> prompt_injection</label>
+              </div>
+              <div class="hint">Your backend can ignore checks it doesn’t support yet.</div>
+            </div>
+
+            <div class="row">
+              <div>
+                <label for="question">Question / Prompt (optional but recommended)</label>
+                <textarea id="question" placeholder="Paste the user prompt/question here..."></textarea>
+              </div>
+              <div>
+                <label for="answer">LLM Answer (required)</label>
+                <textarea id="answer" placeholder="Paste the AI answer here..."></textarea>
+              </div>
+            </div>
+
+            <div class="btnbar">
+              <button class="primary" id="btnScore">Run TrustLayer Score</button>
+              <button id="btnPing">Ping /healthz</button>
+              <button class="danger" id="btnClear">Clear</button>
+            </div>
+
+            <p class="tiny">
+              Note: This is a frontend-only prototype. For production you’ll likely move this into Next.js and call the API through a server route (or use API keys scoped for browser use).
+            </p>
+          </div>
+        </section>
+
+        <!-- RIGHT: Output -->
+        <aside class="card">
+          <div class="hd">
+            <h2>Output</h2>
+            <p>TrustScore + per-check risks (0–100%). Raw JSON is shown below for debugging.</p>
+          </div>
+          <div class="bd">
+            <div class="resultTop">
+              <div class="scoreBox">
+                <div id="scoreCircle" class="scoreCircle" title="TrustScore (0–100)">
+                  <div id="scoreNum" class="scoreNum">—</div>
+                </div>
+                <div class="scoreMeta">
+                  <div class="lbl">TrustScore</div>
+                  <div id="scoreSub" class="sub">Run a scan to see results</div>
+                </div>
+              </div>
+
+              <div id="scoreBadge" class="badge" title="Risk summary">
+                <span id="badgeDot" class="dot"></span>
+                <span><strong id="badgeLabel">No scan</strong> <span id="badgeMeta" style="color: var(--muted)"></span></span>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div>
+              <div class="kv">
+                <div class="k">Overall risk (0–1)</div>
+                <div class="v" id="overallRisk">—</div>
+              </div>
+              <div class="bar" style="margin-top: 8px;">
+                <div id="overallBar"></div>
+              </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div id="checkList"></div>
+
+            <div class="divider"></div>
+
+            <label>Raw JSON</label>
+            <div id="rawJson" class="jsonBox">{}</div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+      // ---------------------------
+      // Helpers
+      // ---------------------------
+      const $ = (id) => document.getElementById(id);
+
+      function toast(msg) {
+        const el = $("toast");
+        el.textContent = msg;
+        el.classList.add("show");
+        setTimeout(() => el.classList.remove("show"), 2200);
+      }
+
+      function clamp(n, min, max) {
+        return Math.max(min, Math.min(max, n));
+      }
+
+      function pct01(x) {
+        if (x === null || x === undefined || Number.isNaN(Number(x))) return null;
+        return clamp(Number(x), 0, 1);
+      }
+
+      function toPct(x01) {
+        const v = pct01(x01);
+        if (v === null) return "—";
+        return Math.round(v * 100) + "%";
+      }
+
+      function setStatus(kind, text) {
+        const dot = $("statusDot");
+        dot.classList.remove("ok", "warn", "bad");
+        if (kind) dot.classList.add(kind);
+        $("statusText").textContent = text;
+      }
+
+      function scoreColor(score) {
+        if (score === null || score === undefined) return { kind: null, label: "No scan" };
+        if (score >= 75) return { kind: "ok", label: "High trust" };
+        if (score >= 40) return { kind: "warn", label: "Medium trust" };
+        return { kind: "bad", label: "Low trust" };
+      }
+
+      function setBadge(score, risk01) {
+        const { kind, label } = scoreColor(score);
+        const dot = $("badgeDot");
+        dot.classList.remove("ok", "warn", "bad");
+        if (kind) dot.classList.add(kind);
+        $("badgeLabel").textContent = label;
+        $("badgeMeta").textContent = score != null ? `• ${score}/100` : "";
+        $("scoreSub").textContent = score != null ? `Computed from selected checks • risk ${risk01 ?? "—"}` : "Run a scan to see results";
+      }
+
+      function renderChecks(checks) {
+        const host = $("checkList");
+        host.innerHTML = "";
+
+        if (!Array.isArray(checks) || checks.length === 0) {
+          host.innerHTML = `<div class="hint">No checks returned.</div>`;
+          return;
+        }
+
+        for (const c of checks) {
+          const name = c?.name ?? "unknown";
+          const score = pct01(c?.score);
+          const details = c?.details;
+
+          const row = document.createElement("div");
+          row.style.marginBottom = "12px";
+
+          const top = document.createElement("div");
+          top.className = "kv";
+          top.innerHTML = `
+            <div class="k">${escapeHtml(name)} risk</div>
+            <div class="v">${toPct(score)}</div>
+          `;
+
+          const bar = document.createElement("div");
+          bar.className = "bar";
+          bar.style.marginTop = "8px";
+          const fill = document.createElement("div");
+          fill.style.width = score == null ? "0%" : Math.round(score * 100) + "%";
+          bar.appendChild(fill);
+
+          row.appendChild(top);
+          row.appendChild(bar);
+
+          if (details) {
+            const det = document.createElement("div");
+            det.className = "hint";
+            det.style.marginTop = "6px";
+            det.textContent = summarizeDetails(details);
+            row.appendChild(det);
+          }
+
+          host.appendChild(row);
+        }
+      }
+
+      function summarizeDetails(details) {
+        // Keep this short—MVP. Your API can return a dedicated "explanation" field later.
+        try {
+          if (typeof details === "string") return details;
+          if (details?.explanation) return String(details.explanation);
+
+          // Example: hallucination evidence
+          if (Array.isArray(details?.evidence) && details.evidence.length) {
+            return `Evidence: ${details.evidence.slice(0, 3).join(" • ")}${details.evidence.length > 3 ? " • ..." : ""}`;
+          }
+          return "Details available in raw JSON.";
+        } catch {
+          return "Details available in raw JSON.";
+        }
+      }
+
+      function escapeHtml(s) {
+        return String(s)
+          .replaceAll("&", "&amp;")
+          .replaceAll("<", "&lt;")
+          .replaceAll(">", "&gt;")
+          .replaceAll('"', "&quot;")
+          .replaceAll("'", "&#039;");
+      }
+
+      function selectedChecks() {
+        const list = [];
+        if ($("ckTox").checked) list.push("toxicity");
+        if ($("ckHall").checked) list.push("hallucination");
+        if ($("ckBias").checked) list.push("bias");
+        if ($("ckPII").checked) list.push("pii");
+        if ($("ckInj").checked) list.push("prompt_injection");
+        return list;
+      }
+
+      async function apiPing(apiBase) {
+        const url = apiBase.replace(/\/$/, "") + "/healthz";
+        const res = await fetch(url, { method: "GET" });
+        if (!res.ok) throw new Error("Healthcheck failed: " + res.status);
+        return true;
+      }
+
+      async function apiScore({ apiBase, apiKey, payload }) {
+        const url = apiBase.replace(/\/$/, "") + "/score";
+        const headers = { "Content-Type": "application/json" };
+        if (apiKey && apiKey.trim().length) headers["x-api-key"] = apiKey.trim();
+
+        const res = await fetch(url, {
+          method: "POST",
+          headers,
+          body: JSON.stringify(payload),
+        });
+
+        const txt = await res.text();
+        let data;
+        try { data = JSON.parse(txt); } catch { data = { _raw: txt }; }
+
+        if (!res.ok) {
+          const msg = data?.detail || data?._raw || ("API error " + res.status);
+          throw new Error(msg);
+        }
+        return data;
+      }
+
+      function setOverall(risk01) {
+        const v = pct01(risk01);
+        $("overallRisk").textContent = v == null ? "—" : v.toFixed(3);
+        $("overallBar").style.width = v == null ? "0%" : Math.round(v * 100) + "%";
+      }
+
+      // ---------------------------
+      // UI actions
+      // ---------------------------
+      $("btnPing").addEventListener("click", async () => {
+        const apiBase = $("apiBase").value.trim();
+        if (!apiBase) return toast("Enter an API base URL.");
+        setStatus("warn", "Checking…");
+        try {
+          await apiPing(apiBase);
+          setStatus("ok", "API reachable");
+          toast("Healthcheck OK");
+        } catch (e) {
+          setStatus("bad", "API not reachable");
+          toast("Healthcheck failed");
+          console.error(e);
+        }
+      });
+
+      $("btnClear").addEventListener("click", () => {
+        $("question").value = "";
+        $("answer").value = "";
+        $("rawJson").textContent = "{}";
+        $("scoreNum").textContent = "—";
+        setBadge(null, null);
+        setOverall(null);
+        $("checkList").innerHTML = "";
+        toast("Cleared");
+      });
+
+      $("btnScore").addEventListener("click", async () => {
+        const apiBase = $("apiBase").value.trim();
+        const apiKey = $("apiKey").value;
+        const provider = $("provider").value;
+        const modelHint = $("modelHint").value.trim();
+        const source = $("source").value;
+        const include = selectedChecks();
+        const question = $("question").value.trim();
+        const answer = $("answer").value.trim();
+
+        if (!apiBase) return toast("Enter your API base URL.");
+        if (!answer) return toast("Paste an LLM answer to score.");
+
+        setStatus("warn", "Scoring…");
+
+        const payload = {
+          text: answer,
+          question: question || undefined,
+          meta: {
+            provider,
+            modelHint: modelHint || undefined,
+            source,
+          },
+          include,
+        };
+
+        try {
+          const data = await apiScore({ apiBase, apiKey, payload });
+
+          // Render raw
+          $("rawJson").textContent = JSON.stringify(data, null, 2);
+
+          // Extract summary
+          const trustScore = data?.summary?.trustScore ?? null;
+          const risk01 = data?.summary?.risk ?? null;
+
+          $("scoreNum").textContent = trustScore == null ? "—" : String(trustScore);
+          setBadge(trustScore, risk01);
+          setOverall(risk01);
+          renderChecks(data?.checks);
+
+          // Colorize score circle (subtle)
+          const { kind } = scoreColor(trustScore);
+          const circle = $("scoreCircle");
+          circle.style.borderColor =
+            kind === "ok" ? "rgba(0,255,204,0.45)" :
+            kind === "warn" ? "rgba(255,171,64,0.55)" :
+            kind === "bad" ? "rgba(255,71,87,0.55)" :
+            "rgba(232,238,252,0.18)";
+
+          setStatus("ok", "Scored");
+          toast("Score complete");
+        } catch (e) {
+          console.error(e);
+          setStatus("bad", "Error");
+          toast("Score failed (see console)");
+          $("rawJson").textContent = JSON.stringify({ error: String(e?.message || e) }, null, 2);
+        }
+      });
+
+      // Default badge state
+      setBadge(null, null);
+    </script>
+  </body>
+</html>
+
